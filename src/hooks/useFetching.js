@@ -5,10 +5,10 @@ export const useFetching = (callback) => {
     const [isPostsLoading, setIsPostsLoading] = useState(false)
     const [error, setError] = useState('')
 
-    const fetching = async () => {
+    const fetching = async (...args) => {
         try {
             setIsPostsLoading(true)
-            await callback()
+            await callback(...args)
         }
         catch (e) {
             setError(e.message)
