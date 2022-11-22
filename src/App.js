@@ -16,6 +16,7 @@ import PostService from './API/PostService';
 import { usePosts } from './hooks/usePosts';
 import axios from 'axios';
 import Loader from './components/UI/Loader/Loader';
+import { useFetching } from './hooks/useFetching';
 
 // import ClassCounter from './components/ClassCounter';
 // import Counter from './components/Counter';
@@ -26,16 +27,10 @@ function App() {
     const [filter, setFilter] = useState({sort: '', query: ''})
     const [modal, setModal] = useState(false)
     const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query)
-    const [isPostsLoading, setPostsLoading] = useState(false)
-
-    async function fetchPosts() {
-        setPostsLoading(true)
-        setTimeout(async () => {
-            const posts = await PostService.getAll()
-            setPosts(posts)
-            setPostsLoading(false)
-        }, 1000);
-    }
+    const [fetchPosts, isPostsLoading, postError] = useFetching(async () => {
+        const posts = await PostService.getAll()
+        setPosts(posts)
+    })
 
     useEffect(() => {
         fetchPosts()
@@ -63,6 +58,9 @@ function App() {
                 filter={filter} 
                 setFilter={setFilter}
             />
+            {postError &&
+                <h1>Произошла ошибка ${postError}</h1>
+            }
             {isPostsLoading 
                 ? <div style={{display: 'flex', justifyContent: 'center', marginTop: 50}}><Loader/></div>
                 : <PostList remove={removePost} posts={sortedAndSearchedPosts} title={'Список постов'}/>
